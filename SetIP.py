@@ -3,8 +3,6 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtCore import Signal
 import os
 import time
-import WifiConnect
-import ping
 import popup_msg
 import serial
 import serial.tools.list_ports as sp
@@ -31,14 +29,6 @@ class IPset(QtCore.QObject):
         self.groupTitleLabel.setGeometry(QtCore.QRect(10, 20, 100, 22))
         self.groupTitleLabel.setText("STEP0. 연결하기")
         self.groupTitleLabel.setStyleSheet('font: bold')
-
-        # self.getserialLabel = QtWidgets.QLabel(self.group)
-        # self.getserialLabel.setGeometry(QtCore.QRect(10, 20, 120, 22))
-        # self.getserialLabel.setText("러닝캠 시리얼번호")
-        #
-        # self.getserial = QtWidgets.QLineEdit(self.group)
-        # self.getserial.setGeometry(QtCore.QRect(10, 40, 240, 22))
-        # self.getserial.setStyleSheet(':enabled {background-image:url(./image/lineEdit_240.png);} :disabled {background-image:url(./image/lineEdit_240_dis.png);}')
 
         self.getssidLabel = QtWidgets.QLabel(self.group)
         self.getssidLabel.setGeometry(QtCore.QRect(10, 40, 100, 22))
@@ -82,8 +72,7 @@ class IPset(QtCore.QObject):
     #     if self.checkIP() == True:
     #         self.c_th_ipCamera.Set_IP(self.ipadd,self.id,self.pwd)
 
-    def checkIP(self):
-        return ping.ping(self.ipadd)
+
 
     def connectProcess(self):
         if(self.loginProcess()):
@@ -228,30 +217,6 @@ class IPset(QtCore.QObject):
             print("port was already open, was closed and opened again!")
 
         return ser
-
-class wificon_th(QtCore.QThread):
-    IPset_signal_wificonResult = Signal(int)
-    def __init__(self,c_ipset):
-        super(wificon_th, self).__init__(None)
-        self.c_ipset = c_ipset
-
-    def run(self):
-        self.c_ipset.wifiresult = WifiConnect.startWifiConnection(self.c_ipset.getssid.text(), self.c_ipset.getpw.text(), self.c_ipset.getserial.text())
-        self.IPset_signal_wificonResult.emit(1)
-        checkCnt = 0
-        if self.c_ipset.wifiresult != 10:
-            while True:
-                checkCnt = checkCnt + 1
-                if self.c_ipset.checkIP() == True:
-                    self.c_ipset.c_th_ipCamera.Set_IP(self.c_ipset.ipadd, self.c_ipset.id, self.c_ipset.pwd)
-                    break
-                else:
-                    if checkCnt == 30:
-                        # popup_msg.Msg("WIFI Disconnect", "러닝캠 WIFI 연결에 실패했습니다. \n다시 접속시도해 주세요", popup_msg.msg_icon_warning)
-                        self.c_ipset.wifiresult = 10
-                        break
-                    print("Wait... Connecting..".format(checkCnt))
-                time.sleep(1)
 
 
 class COMSettingDialog(QtWidgets.QDialog):

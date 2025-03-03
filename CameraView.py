@@ -7,7 +7,6 @@ import numpy as np
 from datetime import datetime
 import time
 import os
-import ping
 
 
 class IPCamera_th(QtCore.QThread):
@@ -39,8 +38,16 @@ class IPCamera_th(QtCore.QThread):
             if self.holded == 0:
                 if self.th_id == None and self.th_id == None and self.th_pwd == None and self.signal_stop == 0:
                     ret, frame = capture.read()
-                    cvimg = cv.resize(frame, (800, 600))
-                    cvimg = cvimg[0:600, 100:700]
+                    if not ret or frame is None:
+                        print("⚠️ 카메라에서 프레임을 가져오지 못했습니다.")
+                        continue  # 다음 루프로 건너뛰기
+                        # 중앙 600x600 크기로 Crop
+                    h, w, _ = frame.shape
+                    x_start = (w - 600) // 2
+                    x_end = x_start + 600
+                    y_start = (h - 600) // 2
+                    y_end = y_start + 600
+                    cvimg = frame[y_start:y_end, x_start:x_end]
                     cvimg = cv.flip(cvimg, flipCode=1)
                     self.th_viewer.setPixmap(QtGui.QPixmap(QtGui.QImage(cvimg, 600, 600, QtGui.QImage.Format_BGR888)))
                     self.fr = cvimg
