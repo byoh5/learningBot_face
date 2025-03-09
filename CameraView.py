@@ -49,7 +49,7 @@ class IPCamera_th(QtCore.QThread):
                     y_end = y_start + 600
                     cvimg = frame[y_start:y_end, x_start:x_end]
                     cvimg = cv.flip(cvimg, flipCode=1)
-                    self.th_viewer.setPixmap(QtGui.QPixmap(QtGui.QImage(cvimg, 600, 600, QtGui.QImage.Format_BGR888)))
+                    # self.th_viewer.setPixmap(QtGui.QPixmap(QtGui.QImage(cvimg, 600, 600, QtGui.QImage.Format_BGR888)))
                     self.fr = cvimg
 
                     if self.signalBtn_on == 0:  # 한번만 발생하게
